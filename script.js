@@ -11,7 +11,9 @@ function multiply(a, b) {
 }
 
 function divide(a, b) {
-    if (b != 0) {
+    if (b === 0) {
+        alert('Division by zero is a no-no!');
+    } else {
         return a / b;
     }
 }
@@ -19,6 +21,9 @@ function divide(a, b) {
 let numA;
 let numB;
 let op;
+let io = document.querySelector('.io');
+let inputs = document.querySelector('.inputs');
+let calced = false;
 
 function operate(a, op, b) {
     switch (op) {
@@ -38,13 +43,29 @@ function operate(a, op, b) {
 }
 
 function getDigit(d) {
-    let io = document.querySelector('.io');
+    if (io.textContent === '0') { io.textContent = '' };
+    if (calced) {
+        io.textContent = '';
+        inputs.textContent = '';
+        calced = false;
+    };
     io.textContent = `${io.textContent}${d}`;
 }
 
 function getOp(o) {
-    let io = document.querySelector('.io');
-    numA = parseInt(io.textContent);
+    if (/[x\+-\/]/.test(io.textContent.slice(-1))) {
+        return;
+    }
+    if (/.+[x\+-\/].+/.test(io.textContent)) {
+        calc();
+        calced = false;
+    } else {
+        if (io.textContent.slice(-1) === '%') {
+            numA = parseInt(io.textContent.slice(0, -1)) / 100;
+        } else {
+            numA = parseInt(io.textContent);
+        }
+    }
     io.textContent = `${io.textContent}${o}`;
     switch (o) {
         case '/':
@@ -63,12 +84,16 @@ function getOp(o) {
 }
 
 function calc() {
-    let io = document.querySelector('.io');
     numB = parseInt(io.textContent.match(/[x\+-\/].+/)[0].slice(1));
     let result = operate(numA, op, numB);
-    let inputs = document.querySelector('.inputs');
     inputs.textContent = io.textContent;
     io.textContent = result;
+    if (io.textContent.length > 6) {
+        result = result.toPrecision(6);
+        io.textContent = result;
+    }
+    calced = true;
+    numA = result;
 }
 
 let digits = document.querySelectorAll('.num');
@@ -76,7 +101,7 @@ digits.forEach(digitBtn => {
     if (digitBtn.textContent != '+/-') {
         digitBtn.addEventListener('click', () => getDigit(digitBtn.textContent));
     }
-}); 
+});
 
 let operators = document.querySelectorAll('.op');
 operators.forEach(opBtn => {
@@ -85,4 +110,20 @@ operators.forEach(opBtn => {
     } else {
         opBtn.addEventListener('click', () => getOp(opBtn.textContent));
     }
-}); 
+});
+
+let ac = document.querySelector('#ac');
+ac.addEventListener('click', () => {
+    io.textContent = '0';
+    inputs.textContent = '';
+})
+
+let bsp = document.querySelector('#bsp');
+bsp.addEventListener('click', () => {
+    io.textContent = io.textContent.slice(0, io.textContent.length - 1);
+})
+
+let pc = document.querySelector('#pc');
+pc.addEventListener('click', () => {
+    io.textContent += '%';
+})
