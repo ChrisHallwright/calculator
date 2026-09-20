@@ -35,9 +35,14 @@ function operate(a, op, b) {
     }
 }
 
-let numA;
-let numB;
 let op;
+function whichNum() {
+    if (/(?<!\()[x\/+-].+/.test(io.textContent)) {
+        return 'B';
+    } else {
+        return 'A';
+    }
+}
 
 let io = document.querySelector('.io');
 let inputs = document.querySelector('.inputs');
@@ -60,36 +65,50 @@ function parseNum(numText) {
     return rslt;
 }
 
-function getNumText(whichNum) {
-    if (whichNum === 'A') {
-        return io.textContent.match(/.+(?<!\()[x\/+-]/)[0].slice(0, -1);
+function getNumText(which) {
+    if (which === 'A') {
+        if (/(?<!\()[x\/+-]/.test(io.textContent)) {
+            return io.textContent.match(/.+(?<!\()[x\/+-]/)[0].slice(0, -1);
+        } else {
+            return io.textContent;
+        }
     } else {
         return io.textContent.match(/(?<!\()[x\/+-].+/)[0].slice(1);
     }
 }
 
 function getDigit(d) {
-    if (io.textContent === '0' && d != '.') { 
-        io.textContent = '' 
+    if (io.textContent === '0' && d != '.') {
+        io.textContent = ''
     };
     if (calced) {
-        io.textContent = '';
+        if (d === '.') {
+            io.textContent = '0';
+        } else {
+            io.textContent = '';
+        }
         inputs.textContent = '';
         calced = false;
     };
-    io.textContent = `${io.textContent}${d}`;
+    // Don't allow double decimal points
+    if (!(d === '.' && /\./.test(getNumText(whichNum())))) {
+        io.textContent += d;
+    }
 }
 
 function getOp(o) {
     // Avoid double operators
-    if (/[x\/+-]/.test(io.textContent.slice(-1))) {
+    if (/(?<!\()[x\/+-]/.test(io.textContent.slice(-1))) {
         return;
     }
-    if (/.+[x\/+-].+/.test(io.textContent)) {
+    if (/.+(?<!\()[x\/+-].+/.test(io.textContent)) {
         calc();
     }
+    if (calced && io.textContent[0] === '-') {
+        io.textContent = `(${io.textContent})`;
+    }
     calced = false;
-    io.textContent = `${io.textContent}${o}`;
+    io.textContent += o;
     switch (o) {
         case '/':
             op = 'divide';
@@ -120,7 +139,9 @@ function calc() {
 
 let digits = document.querySelectorAll('.num');
 digits.forEach(digitBtn => {
-    digitBtn.addEventListener('click', () => getDigit(digitBtn.textContent));
+    if (digitBtn.textContent != '+/-') {
+        digitBtn.addEventListener('click', () => getDigit(digitBtn.textContent));
+    }
 });
 
 let operators = document.querySelectorAll('.op');
@@ -146,4 +167,20 @@ bsp.addEventListener('click', () => {
 let pc = document.querySelector('#pc');
 pc.addEventListener('click', () => {
     io.textContent += '%';
+})
+
+let reverseSign = document.querySelector('#reverse-sign');
+reverseSign.addEventListener('click', () => {
+    const which = whichNum();
+    let numText = getNumText(which);
+    if (numText[0] === '(') {
+        numText = numText.replace(/[\(\)-]/g, '');
+    } else {
+        numText = `(-${numText})`;
+    }
+    if (which === 'A') {
+        io.textContent = numText;
+    } else {
+        io.textContent = io.textContent.match(/.+(?<!\()[x\/+-]/)[0] + numText;
+    }
 })
