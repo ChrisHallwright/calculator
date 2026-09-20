@@ -184,3 +184,39 @@ reverseSign.addEventListener('click', () => {
         io.textContent = io.textContent.match(/.+(?<!\()[x\/+-]/)[0] + numText;
     }
 })
+
+let anywhere = document.querySelector('body');
+anywhere.addEventListener('keydown', (k) => {
+    switch (k.key) {
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+        case '.':
+            getDigit(k.key);
+            break;
+        case '/':
+        case '+':
+        case '-':
+            getOp(k.key);
+            break;
+        case '*':
+            getOp('x');
+            break;
+        case 'Backspace':
+            io.textContent = io.textContent.slice(0, io.textContent.length - 1);
+            break;
+        case '%':
+            io.textContent += '%';
+            break;
+        case '=':
+            calc();
+            break;
+    }
+})
