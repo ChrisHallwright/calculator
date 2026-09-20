@@ -18,13 +18,6 @@ function divide(a, b) {
     }
 }
 
-let numA;
-let numB;
-let op;
-let io = document.querySelector('.io');
-let inputs = document.querySelector('.inputs');
-let calced = false;
-
 function operate(a, op, b) {
     switch (op) {
         case 'add':
@@ -42,8 +35,43 @@ function operate(a, op, b) {
     }
 }
 
+let numA;
+let numB;
+let op;
+
+let io = document.querySelector('.io');
+let inputs = document.querySelector('.inputs');
+let calced = false;
+
+function parseNum(numText) {
+    let rslt;
+    let isPC = false;
+    numText = numText.replace(/[\(\)]/g, '');
+    if (/%/.test(numText)) {
+        isPC = true;
+        numText = numText.replace('%', '')
+    }
+    if (/\./.test(numText)) {
+        rslt = parseFloat(numText);
+    } else {
+        rslt = parseInt(numText);
+    }
+    if (isPC) { rslt /= 100 }
+    return rslt;
+}
+
+function getNumText(whichNum) {
+    if (whichNum === 'A') {
+        return io.textContent.match(/.+(?<!\()[x\/+-]/)[0].slice(0, -1);
+    } else {
+        return io.textContent.match(/(?<!\()[x\/+-].+/)[0].slice(1);
+    }
+}
+
 function getDigit(d) {
-    if (io.textContent === '0') { io.textContent = '' };
+    if (io.textContent === '0' && d != '.') { 
+        io.textContent = '' 
+    };
     if (calced) {
         io.textContent = '';
         inputs.textContent = '';
@@ -53,19 +81,14 @@ function getDigit(d) {
 }
 
 function getOp(o) {
-    if (/[x\+-\/]/.test(io.textContent.slice(-1))) {
+    // Avoid double operators
+    if (/[x\/+-]/.test(io.textContent.slice(-1))) {
         return;
     }
-    if (/.+[x\+-\/].+/.test(io.textContent)) {
+    if (/.+[x\/+-].+/.test(io.textContent)) {
         calc();
-        calced = false;
-    } else {
-        if (io.textContent.slice(-1) === '%') {
-            numA = parseInt(io.textContent.slice(0, -1)) / 100;
-        } else {
-            numA = parseInt(io.textContent);
-        }
     }
+    calced = false;
     io.textContent = `${io.textContent}${o}`;
     switch (o) {
         case '/':
@@ -84,8 +107,8 @@ function getOp(o) {
 }
 
 function calc() {
-    numB = parseInt(io.textContent.match(/[x\+-\/].+/)[0].slice(1));
-    let result = operate(numA, op, numB);
+    let result = operate(
+        parseNum(getNumText('A')), op, parseNum(getNumText('B')));
     inputs.textContent = io.textContent;
     io.textContent = result;
     if (io.textContent.length > 6) {
@@ -93,14 +116,11 @@ function calc() {
         io.textContent = result;
     }
     calced = true;
-    numA = result;
 }
 
 let digits = document.querySelectorAll('.num');
 digits.forEach(digitBtn => {
-    if (digitBtn.textContent != '+/-') {
-        digitBtn.addEventListener('click', () => getDigit(digitBtn.textContent));
-    }
+    digitBtn.addEventListener('click', () => getDigit(digitBtn.textContent));
 });
 
 let operators = document.querySelectorAll('.op');
