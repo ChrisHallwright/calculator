@@ -12,6 +12,7 @@ body {
     width: 336px;
     border: 30px solid black;
     margin-top: 50px;
+    border-radius: 40px;
 }
 
 .inputs {
