@@ -46,6 +46,16 @@ button {
     border: 0;
 }
 
+#bsp {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+img {
+    height: 30px;
+}
+
 button.special {
     background-color: lightgray;
     font-size: 1.6em;
