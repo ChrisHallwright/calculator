@@ -19,6 +19,18 @@ function divide(a, b) {
 }
 
 function operate(a, op, b) {
+    // When adding or subtracting a percentage, it should be relative to 'a'
+    if (op === 'add' || op === 'subtract') {
+        if (/\%/.test(getNumText('B'))) {
+            if (op === 'add') {
+                b = 1 + b;
+            } else {
+                b = 1 - b;
+            }
+            op = 'multiply';
+        }
+    }
+
     switch (op) {
         case 'add':
             return add(a, b);
